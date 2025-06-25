@@ -1,0 +1,100 @@
+name: flutter_all_projects
+
+packages:
+  - packages/**
+  - tools/**
+
+command:
+  version:
+    # Génère automatiquement les CHANGELOGs
+    updateGitTagRefs: true
+    releaseUrl: true
+    workspaceChangelog: true
+
+  bootstrap:
+    # Utilise PubGet par défaut
+    runPubGetInParallel: false
+
+  clean:
+    # Nettoie les dossiers build et .dart_tool
+    hooks:
+      pre: |
+        melos exec -- "rm -rf build"
+        melos exec -- "rm -rf .dart_tool"
+
+scripts:
+  # Installation des dépendances
+  get:
+    run: melos bootstrap
+    description: Installe les dépendances pour tous les packages
+
+  # Nettoyage
+  clean:
+    run: melos clean
+    description: Nettoie tous les packages
+
+  # Analyse du code
+  analyze:
+    run: melos exec -- "dart analyze ."
+    description: Analyse le code de tous les packages
+    packageFilters:
+      dirExists:
+        - lib
+
+  # Formatage du code
+  format:
+    run: melos exec -- "dart format --set-exit-if-changed ."
+    description: Formate le code de tous les packages
+    packageFilters:
+      dirExists:
+        - lib
+
+  # Tests
+  test:
+    run: melos exec -- "flutter test"
+    description: Lance les tests pour tous les packages Flutter
+    packageFilters:
+      dependsOn: "flutter"
+
+  test:dart:
+    run: melos exec -- "dart test"
+    description: Lance les tests pour tous les packages Dart
+    packageFilters:
+      dependsOn: "test"
+      ignore: "flutter"
+
+  # Build
+  build:android:
+    run: melos exec -- "flutter build apk"
+    description: Build Android pour les apps Flutter
+    packageFilters:
+      dependsOn: "flutter"
+      scope: "*app*"
+
+  build:ios:
+    run: melos exec -- "flutter build ios"
+    description: Build iOS pour les apps Flutter
+    packageFilters:
+      dependsOn: "flutter"
+      scope: "*app*"
+
+  build:web:
+    run: melos exec -- "flutter build web"
+    description: Build web pour les apps Flutter
+    packageFilters:
+      dependsOn: "flutter"
+      scope: "*web*"
+
+  # Versioning
+  version:
+    run: melos version --no-git-tag-version
+    description: Met à jour les versions des packages
+
+  # Publish
+  publish:
+    run: melos publish --no-dry-run
+    description: Publie les packages sur pub.dev
+
+ide:
+  intellij:
+    enabled: false
