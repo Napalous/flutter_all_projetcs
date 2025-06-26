@@ -1,0 +1,1 @@
+export './napal_env_config.dart';
